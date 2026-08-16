@@ -1,0 +1,35 @@
+{# structures.html — the answer templates for each paper (Paper 1 10 marker, 15 marker,
+   Paper 2, Paper 3, IA). these are built-in only (no adding), just a list you can filter by
+   level. each one has a numbered list of steps. #}
+{% extends "base.html" %}
+{% block title %}Structures · {{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/section/{{ section }}">← {{ SECTIONS[section].name }}</a></div>
+<div class="page-header">
+  <h1>Answer Structures</h1>
+  <p class="sub">How to structure every type of answer in the IB Economics exams</p>
+</div>
+
+<div class="filter-row">
+  <span class="filter-label">Level:</span>
+  <button class="pill active" data-filter="level" data-value="">All</button>
+  <button class="pill" data-filter="level" data-value="SL">SL only</button>
+  <button class="pill" data-filter="level" data-value="HL">HL only</button>
+</div>
+
+<div id="item-list">
+  {% for s in items %}
+  <div class="card structure-card filterable" data-level="{{ s.level }}" data-subtopic="" data-text="{{ (s.paper ~ ' ' ~ s.title)|lower }}">
+    <div class="paper">{{ s.paper }}{% if s.level == 'HL' %} · HL only{% endif %}</div>
+    <h3>{{ s.title }}</h3>
+    <ol>
+      {# loop through the steps and number them automatically with <ol> #}
+      {% for step in s.steps %}<li>{{ step }}</li>{% endfor %}
+    </ol>
+  </div>
+  {% endfor %}
+</div>
+<div class="empty hidden" id="no-results">Nothing matches this level filter.</div>
+
+{% endblock %}

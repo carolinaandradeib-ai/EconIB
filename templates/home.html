@@ -1,0 +1,41 @@
+{# home.html — the landing page. just the hero text, the "flashcards due" banner,
+   and the 3 section cards (Micro / Macro / Global). #}
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span> IB Economics · 2027 Curriculum</div>
+  <h1>Master Economics.<br><span class="accent">One concept at a time.</span></h1>
+  <p class="lede">Definitions, diagrams, answer structures, real-world examples and
+     spaced repetition — built for SL &amp; HL students.</p>
+
+  {# only show this banner if there are actually cards due. the {{ 's' if ... }} just adds an
+     "s" so it says "1 flashcard" but "2 flashcards". #}
+  {% if due_count %}
+  <a class="due-banner" href="/flashcards">🗂️ {{ due_count }} flashcard{{ 's' if due_count != 1 }} due for review →</a>
+  {% endif %}
+</div>
+
+<div class="eyebrow">Choose a section</div>
+<div class="grid cols-3">
+  {# loop over the 3 sections (from app.py) and make a card for each. loop.index0 is the
+     position (0,1,2) so i can give each card a different colour icon. #}
+  {% for key, s in SECTIONS.items() %}
+  <a class="card section-card" href="/section/{{ key }}">
+    <div class="icon {{ ['blue','green','orange'][loop.index0] }}">{{ s.icon }}</div>
+    <h3>{{ s.name }}</h3>
+    <p>{{ s.blurb }}</p>
+    <div class="go">Explore →</div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="quick-links">
+  <a class="btn" href="/library">📚 My Library</a>
+  <a class="btn" href="/calculator">🧮 Grade Calculator</a>
+  <a class="btn" href="/notes">📝 My Notes</a>
+  <a class="btn" href="/kits">📦 Study Kits</a>
+</div>
+
+{% endblock %}

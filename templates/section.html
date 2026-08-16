@@ -1,0 +1,42 @@
+{# section.html — the hub inside a section (e.g. Microeconomics). shows the 4 areas you can
+   go into: Definitions, Diagrams, Real World Examples, Structures. the counts (how many of
+   each) come from app.py. #}
+{% extends "base.html" %}
+{% block title %}{{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/">← Home</a></div>
+<div class="page-header">
+  <h1>{{ SECTIONS[section].icon }} {{ SECTIONS[section].name }}</h1>
+  <p class="sub">{{ SECTIONS[section].blurb }}</p>
+</div>
+
+<div class="grid cols-2">
+  {# each card links to that area, keeping the current section in the url #}
+  <a class="card section-card" href="/section/{{ section }}/definitions">
+    <div class="icon blue">📖</div>
+    <h3>Definitions</h3>
+    <p>{{ counts.definitions }} key terms with precise IB definitions</p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/diagrams">
+    <div class="icon green">📈</div>
+    <h3>Diagrams</h3>
+    <p>{{ counts.diagrams }} diagrams — click any to reveal its IB explanation</p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/examples">
+    <div class="icon orange">🌐</div>
+    <h3>Real World Examples</h3>
+    <p>{{ counts.examples }} curated &amp; personal RWEs, linked to diagrams</p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/structures">
+    <div class="icon purple">🧱</div>
+    <h3>Structures</h3>
+    <p>{{ counts.structures }} answer templates for Papers 1–3 and the IA</p>
+    <div class="go">Open →</div>
+  </a>
+</div>
+
+{% endblock %}

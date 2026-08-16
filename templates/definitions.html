@@ -1,0 +1,110 @@
+{# definitions.html — lists all the definitions for a section, with search + filters + an
+   add/edit popup. this is the most "full on" content page; diagrams and examples work the
+   same way. the js that runs the filtering and the form is in app.js. #}
+{% extends "base.html" %}
+{% block title %}Definitions · {{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/section/{{ section }}">← {{ SECTIONS[section].name }}</a></div>
+<div class="header-row page-header">
+  <div>
+    <h1>Definitions</h1>
+    <p class="sub">Key terms with precise IB definitions</p>
+  </div>
+  {# data-open-modal tells app.js which popup to open #}
+  <button class="btn primary" data-open-modal="modal-def">＋ Add</button>
+</div>
+
+<input class="search" id="search" type="text" placeholder="Search definitions...">
+
+{# the filter pills. data-filter + data-value are read by app.js to decide what to hide/show.
+   i loop over the subtopics for this section so i don't type them all out. #}
+<div class="filter-row">
+  <span class="filter-label">Subtopic:</span>
+  <button class="pill active" data-filter="subtopic" data-value="">All</button>
+  {% for st in SUBTOPICS[section] %}
+  <button class="pill" data-filter="subtopic" data-value="{{ st }}">{{ st }}</button>
+  {% endfor %}
+</div>
+<div class="filter-row">
+  <span class="filter-label">Level:</span>
+  <button class="pill active" data-filter="level" data-value="">All</button>
+  <button class="pill" data-filter="level" data-value="SL">SL only</button>
+  <button class="pill" data-filter="level" data-value="HL">HL only</button>
+</div>
+
+<p class="count-note"><span id="visible-count">{{ items|length }}</span> definitions</p>
+
+<div id="item-list">
+  {# make a card for every definition. the data-* attributes below are what the js filter
+     looks at (data-text is the searchable text, lowercased). #}
+  {% for item in items %}
+  <div class="card def-item filterable"
+       data-subtopic="{{ item.subtopic }}" data-level="{{ item.level }}"
+       data-text="{{ (item.term ~ ' ' ~ item.definition)|lower }}">
+    <div class="item-top">
+      <h3>{{ item.term }}</h3>
+      {# the credibility badge: "Developer" if i made it, "You" if the user added it #}
+      <span class="badge {{ 'dev' if item.source == 'developer' else 'user' }}">
+        {{ 'Developer' if item.source == 'developer' else 'You' }}</span>
+    </div>
+    <p>{{ item.definition }}</p>
+    <div class="item-tags">
+      <span class="badge topic">{{ item.subtopic }}</span>
+      <span class="badge {{ 'hl' if item.level == 'HL' else 'level' }}">{{ item.level }}</span>
+    </div>
+    <div class="item-actions">
+      {# has_flashcard/in_library are helper functions from app.py. i use them to change the
+         button (e.g. already made -> disabled and shows a tick). #}
+      <button class="btn small {{ 'made' if has_flashcard(item.id) }}"
+              data-make-flashcard="definition" data-id="{{ item.id }}"
+              {{ 'disabled' if has_flashcard(item.id) }}>
+        🗂️ {{ 'Flashcard ✓' if has_flashcard(item.id) else 'Make flashcard' }}</button>
+      <button class="btn small {{ 'saved' if in_library(item.id) }}"
+              data-toggle-library="definition" data-id="{{ item.id }}">
+        {{ '🔖 Saved' if in_library(item.id) else '🔖 Save' }}</button>
+      {# only show edit/delete on the user's OWN items, not my built-in ones #}
+      {% if item.source == 'user' %}
+      <button class="btn small" data-edit-def="{{ item.id }}"
+              data-term="{{ item.term }}" data-definition="{{ item.definition }}"
+              data-subtopic="{{ item.subtopic }}" data-level="{{ item.level }}">✏️ Edit</button>
+      <button class="btn small danger" data-delete="definitions" data-id="{{ item.id }}">🗑 Delete</button>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{# shown by the js when the filters leave nothing #}
+<div class="empty hidden" id="no-results">No definitions match your filters.</div>
+
+<!-- the add / edit popup. it's hidden until the ＋ Add (or Edit) button opens it. -->
+<div class="modal-overlay" id="modal-def">
+  <div class="modal">
+    <h2 id="def-modal-title">Add Definition</h2>
+    <div class="form-errors" id="def-errors"></div>
+    <input type="hidden" id="def-id">   <!-- holds the id when editing, empty when adding -->
+    <div class="field"><label>Term *</label><input type="text" id="def-term" placeholder="e.g. Price Elasticity of Demand"></div>
+    <div class="field"><label>Definition *</label><textarea id="def-definition" placeholder="A precise IB-style definition..."></textarea></div>
+    <div class="form-grid">
+      <div class="field"><label>Subtopic *</label>
+        <select id="def-subtopic">
+          {% for st in SUBTOPICS[section] %}<option>{{ st }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label>Level *</label>
+        <select id="def-level"><option>Both</option><option>SL</option><option>HL</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="def-save">Save</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+{# hook up the add/edit form for this page (function is in app.js). i pass in the section so
+   new definitions get saved under the right one. #}
+setupDefinitionForm("{{ section }}");
+</script>
+{% endblock %}

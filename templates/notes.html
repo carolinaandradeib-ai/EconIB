@@ -1,0 +1,54 @@
+{# notes.html — the notes scratchpad (SC-08). you can add notes and they auto-save when you
+   click away from the box (the auto-save is handled in setupNotes() in app.js). #}
+{% extends "base.html" %}
+{% block title %}Notes{% endblock %}
+{% block content %}
+
+<div class="header-row page-header">
+  <div>
+    <h1>📝 Notes</h1>
+    <p class="sub">Your personal scratchpad — everything saves locally</p>
+  </div>
+  <button class="btn primary" data-open-modal="modal-note">＋ New note</button>
+</div>
+
+{# show a friendly message if there are no notes yet #}
+{% if not notes %}
+<div class="empty">No notes yet. Create your first one!</div>
+{% endif %}
+
+<div id="notes-list">
+  {% for note in notes %}
+  <div class="card note-card">
+    <div class="item-top">
+      <h3>{{ note.title }}</h3>
+      <button class="btn small danger" data-delete="notes" data-id="{{ note.id }}">🗑</button>
+    </div>
+    <div class="meta">Last edited {{ note.updated }}</div>
+    {# data-note-id is what app.js uses to know which note to auto-save on blur (click away) #}
+    <textarea data-note-id="{{ note.id }}"
+              placeholder="Start typing... (saves when you click away)">{{ note.content }}</textarea>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- popup for making a brand new note -->
+<div class="modal-overlay" id="modal-note">
+  <div class="modal">
+    <h2>New Note</h2>
+    <div class="form-errors" id="note-errors"></div>
+    <div class="field"><label>Title *</label><input type="text" id="note-title" placeholder="e.g. Paper 1 revision plan"></div>
+    <div class="field"><label>Content</label><textarea id="note-content" placeholder="Free-text scratchpad..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="note-save">Create</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+setupNotes();
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{# kits.html — the list of study kits + the "new kit" popup (SC-02, SC-10). the form is a bit
+   special because when you pick a section, the definition/diagram/example choices have to
+   update to only show that section's stuff. that live updating is done by setupKitForm() in
+   app.js, so i pass all the definitions/diagrams/examples into the js at the bottom. #}
+{% extends "base.html" %}
+{% block title %}Study Kits{% endblock %}
+{% block content %}
+
+<div class="header-row page-header">
+  <div>
+    <h1>📦 Study Kits</h1>
+    <p class="sub">Connect definitions, a diagram &amp; a real-world example into one view</p>
+  </div>
+  <button class="btn primary" data-open-modal="modal-kit">＋ New Kit</button>
+</div>
+
+{# filter the kits by section (using the same filter system, just with section as the value) #}
+<div class="filter-row">
+  <button class="pill active" data-filter="subtopic" data-value="">All</button>
+  {% for key, s in SECTIONS.items() %}
+  <button class="pill" data-filter="subtopic" data-value="{{ key }}">{{ s.name }}</button>
+  {% endfor %}
+</div>
+
+{% if not kits %}
+<div class="empty">No kits yet — create your first Study Kit!</div>
+{% endif %}
+
+<div class="grid cols-2" id="item-list">
+  {% for kit in kits %}
+  <div class="card kit-card filterable" data-subtopic="{{ kit.section }}" data-level="Both"
+       data-text="{{ (kit.title ~ ' ' ~ kit.subtopic)|lower }}">
+    <div class="item-top">
+      <span class="badge dev">{{ SECTIONS[kit.section].name }}</span>
+      <button class="btn small danger" data-delete="kits" data-id="{{ kit.id }}">🗑</button>
+    </div>
+    <h3>{{ kit.title }}</h3>
+    <div class="subtopic">{{ kit.subtopic }}</div>
+    {# little summary of what's inside the kit #}
+    <div class="kit-parts">
+      <span class="badge dev">📖 {{ kit.definition_ids|length }} definition{{ 's' if kit.definition_ids|length != 1 }}</span>
+      {% if kit.diagram_id %}<span class="badge level">📈 Diagram</span>{% endif %}
+      {% if kit.rwe_id %}<span class="badge hl">🌐 Example</span>{% endif %}
+    </div>
+    <a class="kit-view" href="/kits/{{ kit.id }}">View kit →</a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- New kit popup. most of these dropdowns start empty and get filled by the js depending on
+     which section you choose. -->
+<div class="modal-overlay" id="modal-kit">
+  <div class="modal">
+    <h2>New Study Kit</h2>
+    <div class="form-errors" id="kit-errors"></div>   <!-- SC-10 errors show here -->
+    <div class="field"><label>Title *</label><input type="text" id="kit-title" placeholder="e.g. Price Ceilings"></div>
+    <div class="form-grid">
+      <div class="field"><label>Section *</label>
+        <select id="kit-section">
+          {% for key, s in SECTIONS.items() %}<option value="{{ key }}">{{ s.name }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label>Subtopic *</label>
+        <select id="kit-subtopic"></select></div>
+    </div>
+    <div class="field"><label>Definitions * <small>(pick at least one)</small></label>
+      <div class="checklist" id="kit-defs"></div></div>
+    <div class="field"><label>Diagram (one)</label><select id="kit-diagram"><option value="">— None —</option></select></div>
+    <div class="field"><label>Real-world example (one)</label><select id="kit-rwe"><option value="">— None —</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="kit-save">Create Kit</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+{# pass the subtopics + all the content into the js so the form can filter them by section.
+   |tojson turns the python data into json. __dict__ gives me each object's attributes as a
+   plain dict so it survives the trip into javascript. #}
+const SUBTOPICS_ALL = {{ SUBTOPICS|tojson }};
+setupKitForm(
+  {{ definitions|map(attribute='__dict__')|list|tojson }},
+  {{ diagrams|map(attribute='__dict__')|list|tojson }},
+  {{ examples|map(attribute='__dict__')|list|tojson }}
+);
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{# flashcards.html — the review page (SC-04). there are 3 states: no cards at all, none due
+   right now, or actually reviewing. the card front/back get filled in by setupFlashcards()
+   in app.js, which grabs the due cards from the API. #}
+{% extends "base.html" %}
+{% block title %}Flashcards{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>🗂️ Flashcards</h1>
+  <p class="sub">Leitner spaced repetition — {{ total }} card{{ 's' if total != 1 }} total, {{ due_total }} due today</p>
+</div>
+
+<div class="fc-stage" id="fc-stage">
+  {% if total == 0 %}
+  {# state 1: haven't made any flashcards yet #}
+  <div class="empty">No flashcards yet. Use the <strong>🗂️ Make flashcard</strong> button on any
+    definition, diagram or real-world example.</div>
+  {% elif due_total == 0 %}
+  {# state 2: got cards but none are due today #}
+  <div class="card fc-done">
+    <div class="big">🎉</div>
+    <h2>All caught up!</h2>
+    <p class="detail" style="color:var(--ink-soft);margin-top:6px">No cards due today. The Leitner system will bring them back when it's time.</p>
+  </div>
+  {% else %}
+  {# state 3: there are cards to review. these are empty and get filled by the js. #}
+  <div class="fc-progress" id="fc-progress"></div>
+  <div class="fc-card" id="fc-card">
+    <div class="tag" id="fc-tag"></div>
+    <img id="fc-image" class="hidden" alt="Diagram">
+    <div class="front" id="fc-front"></div>
+    <div class="back" id="fc-back"></div>
+  </div>
+  <div class="fc-hint" id="fc-hint">Click the card to reveal the answer</div>
+  {# the 4 leitner buttons. data-rate is what gets sent to the backend. #}
+  <div class="fc-buttons" id="fc-buttons">
+    <button class="fc-btn again" data-rate="again">Again<small>→ box 1 · 1 day</small></button>
+    <button class="fc-btn hard" data-rate="hard">Hard<small>same box</small></button>
+    <button class="fc-btn good" data-rate="good">Good<small>box +1</small></button>
+    <button class="fc-btn easy" data-rate="easy">Easy<small>box +2</small></button>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+{# only start the review js if there's actually something due #}
+{% if due_total > 0 %}setupFlashcards();{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{
+  "definitions": [],
+  "diagrams": [],
+  "examples": [],
+  "kits": [
+    {
+      "id": "kit-ee5ae9",
+      "title": "Price Ceilings",
+      "section": "micro",
+      "subtopic": "Government Intervention",
+      "definition_ids": [
+        "def-price-ceiling",
+        "def-market-eq",
+        "def-demand",
+        "def-supply"
+      ],
+      "diagram_id": "dia-price-ceiling",
+      "rwe_id": "rwe-berlin-rent",
+      "created": "2026-07-16"
+    }
+  ],
+  "notes": [],
+  "flashcards": [
+    {
+      "id": "fc-8783a3",
+      "source_type": "definition",
+      "source_id": "def-demand",
+      "box": 5,
+      "next_review": "2026-08-30",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-0e13e5",
+      "source_type": "definition",
+      "source_id": "def-supply",
+      "box": 5,
+      "next_review": "2026-08-30",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-e196e5",
+      "source_type": "rwe",
+      "source_id": "rwe-uk-sugar-tax",
+      "box": 3,
+      "next_review": "2026-08-20",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-82bc15",
+      "source_type": "definition",
+      "source_id": "def-law-demand",
+      "box": 4,
+      "next_review": "2026-08-23",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-f28ce2",
+      "source_type": "definition",
+      "source_id": "def-market-eq",
+      "box": 4,
+      "next_review": "2026-08-23",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-89de3c",
+      "source_type": "definition",
+      "source_id": "def-ceteris",
+      "box": 2,
+      "next_review": "2026-08-18",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-758e6a",
+      "source_type": "definition",
+      "source_id": "def-ped",
+      "box": 2,
+      "next_review": "2026-08-18",
+      "last_reviewed": "2026-08-16"
+    },
+    {
+      "id": "fc-75ec42",
+      "source_type": "definition",
+      "source_id": "def-gdp",
+      "box": 3,
+      "next_review": "2026-08-20",
+      "last_reviewed": "2026-08-16"
+    }
+  ],
+  "library": [
+    {
+      "type": "definition",
+      "id": "def-demand"
+    },
+    {
+      "type": "definition",
+      "id": "def-supply"
+    }
+  ],
+  "example_notes": {
+    "rwe-berlin-rent": [
+      {
+        "text": "hjkl",
+        "created": "2026-07-27"
+      }
+    ]
+  }
+}

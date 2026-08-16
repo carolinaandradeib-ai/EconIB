@@ -1,0 +1,137 @@
+{# examples.html — the real world examples for a section. this is the richest page: examples
+   filter by subtopic AND country, they show what diagram/definitions they're linked to, and
+   each one has its own private notes that only the user sees. #}
+{% extends "base.html" %}
+{% block title %}Real World Examples · {{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/section/{{ section }}">← {{ SECTIONS[section].name }}</a></div>
+<div class="header-row page-header">
+  <div>
+    <h1>Real World Examples</h1>
+    <p class="sub">Curated &amp; personal examples, organised by country and topic</p>
+  </div>
+  <button class="btn primary" data-open-modal="modal-rwe">＋ Add</button>
+</div>
+
+<input class="search" id="search" type="text" placeholder="Search examples...">
+
+<div class="filter-row">
+  <span class="filter-label">Subtopic:</span>
+  <button class="pill active" data-filter="subtopic" data-value="">All</button>
+  {% for st in SUBTOPICS[section] %}
+  <button class="pill" data-filter="subtopic" data-value="{{ st }}">{{ st }}</button>
+  {% endfor %}
+</div>
+<div class="filter-row">
+  <span class="filter-label">Country:</span>
+  {# the countries come from app.py (it collects them from the examples that exist) #}
+  <button class="pill active country" data-filter="country" data-value="">All</button>
+  {% for c in countries %}
+  <button class="pill country" data-filter="country" data-value="{{ c }}">{{ c }}</button>
+  {% endfor %}
+</div>
+
+<p class="count-note"><span id="visible-count">{{ items|length }}</span> examples</p>
+
+<div id="item-list">
+  {% for item in items %}
+  {# the example only stores the diagram's id, so i use get_diagram() to fetch the real one
+     so i can show its name. same idea for the definitions below. #}
+  {% set diagram = get_diagram(item.linked_diagram_id) if item.linked_diagram_id else None %}
+  <div class="card rwe-card filterable"
+       data-subtopic="{{ item.subtopic }}" data-level="Both" data-country="{{ item.country }}"
+       data-text="{{ (item.title ~ ' ' ~ item.description ~ ' ' ~ item.country)|lower }}">
+    <span class="rwe-country">📍 {{ item.country }}</span>
+    <h3>{{ item.title }}</h3>
+    <span class="badge {{ 'dev' if item.source == 'developer' else 'user' }}">
+      {{ 'Developer' if item.source == 'developer' else 'You' }}</span>
+    <p class="desc">{{ item.description }}</p>
+    {% if item.data_context %}<div class="data-strip">{{ item.data_context }}</div>{% endif %}
+
+    {# show the linked diagram + definitions as little badges #}
+    <div class="linked-row">
+      <span class="linked-label">Linked:</span>
+      <span class="badge topic">{{ item.subtopic }}</span>
+      {% if diagram %}<span class="badge level">📈 {{ diagram.title }}</span>{% endif %}
+      {% for did in item.linked_definition_ids %}
+        {% set d = get_definition(did) %}
+        {% if d %}<span class="badge dev">📖 {{ d.term }}</span>{% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="item-actions">
+      <button class="btn small {{ 'made' if has_flashcard(item.id) }}"
+              data-make-flashcard="rwe" data-id="{{ item.id }}"
+              {{ 'disabled' if has_flashcard(item.id) }}>
+        🗂️ {{ 'Flashcard ✓' if has_flashcard(item.id) else 'Make flashcard' }}</button>
+      <button class="btn small {{ 'saved' if in_library(item.id) }}"
+              data-toggle-library="rwe" data-id="{{ item.id }}">
+        {{ '🔖 Saved' if in_library(item.id) else '🔖 Save' }}</button>
+      <button class="btn small" data-toggle-notes="{{ item.id }}">
+        💬 {{ notes_by_rwe[item.id]|length }} private note{{ 's' if notes_by_rwe[item.id]|length != 1 }}</button>
+      {# edit only on the user's own examples. i stuff the whole example in as json so the
+         edit form can fill itself in from data-edit-rwe. #}
+      {% if item.source == 'user' %}
+      <button class="btn small" data-edit-rwe='{{ item.to_dict()|tojson }}'>✏️ Edit</button>
+      <button class="btn small danger" data-delete="examples" data-id="{{ item.id }}">🗑 Delete</button>
+      {% endif %}
+    </div>
+
+    {# the private notes, hidden until you click the "notes" button. each user can add their own. #}
+    <div class="private-notes hidden" id="notes-{{ item.id }}">
+      {% for n in notes_by_rwe[item.id] %}
+      <div class="note-line">💬 {{ n.text }} <small style="color:var(--ink-faint)">· {{ n.created }}</small></div>
+      {% endfor %}
+      <div class="note-input-row">
+        <input type="text" class="search" style="margin:0;padding:8px 12px;background-image:none"
+               placeholder="Add a private note (only you see this)..." id="note-input-{{ item.id }}">
+        <button class="btn small" data-add-note="{{ item.id }}">Add</button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="empty hidden" id="no-results">No examples match your filters.</div>
+
+<!-- Add / edit example popup. the diagram dropdown and definition checkboxes let you link
+     this example to the app's diagrams/definitions (no image uploads). -->
+<div class="modal-overlay" id="modal-rwe">
+  <div class="modal">
+    <h2 id="rwe-modal-title">Add Real World Example</h2>
+    <div class="form-errors" id="rwe-errors"></div>
+    <input type="hidden" id="rwe-id">
+    <div class="field"><label>Title *</label><input type="text" id="rwe-title" placeholder="e.g. Rent Control in Berlin"></div>
+    <div class="field"><label>Description *</label><textarea id="rwe-description" placeholder="Describe what happened and why it matters economically..."></textarea></div>
+    <div class="form-grid">
+      <div class="field"><label>Subtopic *</label>
+        <select id="rwe-subtopic">
+          {% for st in SUBTOPICS[section] %}<option>{{ st }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label>Country *</label><input type="text" id="rwe-country" placeholder="e.g. Germany"></div>
+    </div>
+    <div class="field"><label>Data / context</label><input type="text" id="rwe-data" placeholder="Relevant figures, dates, percentages..."></div>
+    <div class="field"><label>Linked diagram <small>(choose from the app's diagrams — no uploads)</small></label>
+      <select id="rwe-diagram">
+        <option value="">— None —</option>
+        {% for d in diagrams %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}
+      </select></div>
+    <div class="field"><label>Linked definitions</label>
+      <div class="checklist" id="rwe-defs">
+        {% for d in definitions %}
+        <label><input type="checkbox" value="{{ d.id }}"> {{ d.term }}</label>
+        {% endfor %}
+      </div></div>
+    <div class="modal-actions">
+      <button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="rwe-save">Add Example</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+setupExampleForm("{{ section }}");
+</script>
+{% endblock %}

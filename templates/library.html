@@ -1,0 +1,91 @@
+{# library.html — everything the user saved with the 🔖 button, grouped by type
+   (definitions / diagrams / examples / kits). app.py sorts the saved things into `groups`,
+   and here i just show each group if it has anything in it. #}
+{% extends "base.html" %}
+{% block title %}Library{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>📚 Library</h1>
+  <p class="sub">Everything you've saved, in one place</p>
+</div>
+
+{# add up how many saved things there are total, so i can show "nothing saved yet" if it's 0 #}
+{% set total = groups['definition']|length + groups['diagram']|length + groups['rwe']|length + groups['kit']|length %}
+{% if total == 0 %}
+<div class="empty">Nothing saved yet — use the 🔖 Save button on any definition, diagram or example.</div>
+{% endif %}
+
+{# each block below only shows up if that group actually has saved items in it #}
+{% if groups['definition'] %}
+<div class="eyebrow">Definitions</div>
+{% for item in groups['definition'] %}
+<div class="card def-item">
+  <div class="item-top">
+    <h3>{{ item.term }}</h3>
+    <span class="badge {{ 'dev' if item.source == 'developer' else 'user' }}">{{ 'Developer' if item.source == 'developer' else 'You' }}</span>
+  </div>
+  <p>{{ item.definition }}</p>
+  <div class="item-tags">
+    <span class="badge topic">{{ SECTIONS[item.section].name }}</span>
+    <span class="badge topic">{{ item.subtopic }}</span>
+    <span class="badge {{ 'hl' if item.level == 'HL' else 'level' }}">{{ item.level }}</span>
+  </div>
+  <div class="item-actions">
+    {# same toggle-library button, here it just removes it since it's already saved #}
+    <button class="btn small saved" data-toggle-library="definition" data-id="{{ item.id }}">🔖 Remove</button>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if groups['diagram'] %}
+<div class="eyebrow">Diagrams</div>
+<div class="grid cols-2">
+{% for item in groups['diagram'] %}
+<div class="card diagram-card" data-diagram-toggle>
+  <div class="img-wrap"><img src="{{ url_for('static', filename='diagrams/' ~ item.image) }}" alt="{{ item.title }}"></div>
+  <div class="body">
+    <h3>{{ item.title }}</h3>
+    <div class="hint"><span class="closed-text">▸ Click to reveal IB explanation</span><span class="open-text">▾ Click to hide explanation</span></div>
+    <div class="item-actions">
+      <button class="btn small saved" data-toggle-library="diagram" data-id="{{ item.id }}">🔖 Remove</button>
+    </div>
+  </div>
+  <div class="explanation"><strong>IB Description — </strong>{{ item.explanation }}</div>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if groups['rwe'] %}
+<div class="eyebrow">Real World Examples</div>
+{% for item in groups['rwe'] %}
+<div class="card rwe-card">
+  <span class="rwe-country">📍 {{ item.country }}</span>
+  <h3>{{ item.title }}</h3>
+  <span class="badge {{ 'dev' if item.source == 'developer' else 'user' }}">{{ 'Developer' if item.source == 'developer' else 'You' }}</span>
+  <p class="desc">{{ item.description }}</p>
+  {% if item.data_context %}<div class="data-strip">{{ item.data_context }}</div>{% endif %}
+  <div class="item-actions">
+    <button class="btn small saved" data-toggle-library="rwe" data-id="{{ item.id }}">🔖 Remove</button>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if groups['kit'] %}
+<div class="eyebrow">Study Kits</div>
+<div class="grid cols-2">
+{% for kit in groups['kit'] %}
+<div class="card kit-card">
+  <span class="badge dev">{{ SECTIONS[kit.section].name }}</span>
+  <h3>{{ kit.title }}</h3>
+  <div class="subtopic">{{ kit.subtopic }}</div>
+  <a class="kit-view" href="/kits/{{ kit.id }}">View kit →</a>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

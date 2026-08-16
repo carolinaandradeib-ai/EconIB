@@ -1,0 +1,54 @@
+{# kit_detail.html — the combined view of ONE study kit (SC-02). app.py already followed the
+   kit's linked ids and passed in the real definitions/diagram/example, so here i just show
+   them all together on one page. this is the whole point of study kits. #}
+{% extends "base.html" %}
+{% block title %}{{ kit.title }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/kits">← Study Kits</a></div>
+<div class="header-row page-header">
+  <div>
+    <h1>📦 {{ kit.title }}</h1>
+    <p class="sub">{{ SECTIONS[kit.section].name }} · {{ kit.subtopic }} · created {{ kit.created }}</p>
+  </div>
+  <button class="btn small {{ 'saved' if in_library(kit.id) }}"
+          data-toggle-library="kit" data-id="{{ kit.id }}">
+    {{ '🔖 Saved' if in_library(kit.id) else '🔖 Save to Library' }}</button>
+</div>
+
+{# all the linked definitions #}
+<div class="eyebrow">📖 Definitions ({{ definitions|length }})</div>
+{% for d in definitions %}
+<div class="card def-item">
+  <div class="item-top">
+    <h3>{{ d.term }}</h3>
+    <span class="badge {{ 'hl' if d.level == 'HL' else 'level' }}">{{ d.level }}</span>
+  </div>
+  <p>{{ d.definition }}</p>
+</div>
+{% endfor %}
+
+{# the one linked diagram (if there is one). i give it the "open" class so its explanation
+   shows straight away, no need to click here. #}
+{% if diagram %}
+<div class="eyebrow">📈 Diagram</div>
+<div class="card diagram-card open" style="cursor:default">
+  <div class="img-wrap"><img src="{{ url_for('static', filename='diagrams/' ~ diagram.image) }}" alt="{{ diagram.title }}"></div>
+  <div class="body"><h3>{{ diagram.title }}</h3></div>
+  <div class="explanation"><strong>IB Description — </strong>{{ diagram.explanation }}</div>
+</div>
+{% endif %}
+
+{# the one linked real world example (if there is one) #}
+{% if rwe %}
+<div class="eyebrow">🌐 Real World Example</div>
+<div class="card rwe-card">
+  <span class="rwe-country">📍 {{ rwe.country }}</span>
+  <h3>{{ rwe.title }}</h3>
+  <span class="badge {{ 'dev' if rwe.source == 'developer' else 'user' }}">{{ 'Developer' if rwe.source == 'developer' else 'You' }}</span>
+  <p class="desc">{{ rwe.description }}</p>
+  {% if rwe.data_context %}<div class="data-strip">{{ rwe.data_context }}</div>{% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

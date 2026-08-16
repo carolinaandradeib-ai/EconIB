@@ -1,0 +1,111 @@
+{# diagrams.html — the diagrams for a section. same layout as definitions but the card shows
+   an image, and clicking a card toggles its IB explanation (SC-09). the "add" form lets you
+   pick from images already in the app instead of uploading, so nothing dodgy gets added. #}
+{% extends "base.html" %}
+{% block title %}Diagrams · {{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/section/{{ section }}">← {{ SECTIONS[section].name }}</a></div>
+<div class="header-row page-header">
+  <div>
+    <h1>Diagrams</h1>
+    <p class="sub">Click any diagram to toggle its IB-style explanation</p>
+  </div>
+  <button class="btn primary" data-open-modal="modal-dia">＋ Add</button>
+</div>
+
+<input class="search" id="search" type="text" placeholder="Search diagrams...">
+
+<div class="filter-row">
+  <span class="filter-label">Subtopic:</span>
+  <button class="pill active" data-filter="subtopic" data-value="">All</button>
+  {% for st in SUBTOPICS[section] %}
+  <button class="pill" data-filter="subtopic" data-value="{{ st }}">{{ st }}</button>
+  {% endfor %}
+</div>
+<div class="filter-row">
+  <span class="filter-label">Level:</span>
+  <button class="pill active" data-filter="level" data-value="">All</button>
+  <button class="pill" data-filter="level" data-value="SL">SL only</button>
+  <button class="pill" data-filter="level" data-value="HL">HL only</button>
+</div>
+
+<p class="count-note"><span id="visible-count">{{ items|length }}</span> diagrams</p>
+
+<div class="grid cols-2" id="item-list">
+  {% for item in items %}
+  {# data-diagram-toggle is the flag app.js looks for to open/close the explanation on click #}
+  <div class="card diagram-card filterable" data-diagram-toggle
+       data-subtopic="{{ item.subtopic }}" data-level="{{ item.level }}"
+       data-text="{{ (item.title ~ ' ' ~ item.subtopic)|lower }}">
+    <div class="img-wrap">
+      <img src="{{ url_for('static', filename='diagrams/' ~ item.image) }}" alt="{{ item.title }}">
+    </div>
+    <div class="body">
+      <div class="item-top">
+        <h3>{{ item.title }}</h3>
+        <span class="badge {{ 'dev' if item.source == 'developer' else 'user' }}">
+          {{ 'Developer' if item.source == 'developer' else 'You' }}</span>
+      </div>
+      <div class="hint">
+        {# only one of these shows at a time (css swaps them when the card is open) #}
+        <span class="closed-text">▸ Click to reveal IB explanation</span>
+        <span class="open-text">▾ Click to hide explanation</span>
+      </div>
+      <div class="item-tags">
+        <span class="badge topic">{{ item.subtopic }}</span>
+        <span class="badge {{ 'hl' if item.level == 'HL' else 'level' }}">{{ item.level }}</span>
+      </div>
+      <div class="item-actions">
+        <button class="btn small {{ 'made' if has_flashcard(item.id) }}"
+                data-make-flashcard="diagram" data-id="{{ item.id }}"
+                {{ 'disabled' if has_flashcard(item.id) }}>
+          🗂️ {{ 'Flashcard ✓' if has_flashcard(item.id) else 'Make flashcard' }}</button>
+        <button class="btn small {{ 'saved' if in_library(item.id) }}"
+                data-toggle-library="diagram" data-id="{{ item.id }}">
+          {{ '🔖 Saved' if in_library(item.id) else '🔖 Save' }}</button>
+        {% if item.source == 'user' %}
+        <button class="btn small danger" data-delete="diagrams" data-id="{{ item.id }}">🗑 Delete</button>
+        {% endif %}
+      </div>
+    </div>
+    {# this is hidden until you click the card #}
+    <div class="explanation"><strong>IB Description — </strong>{{ item.explanation }}</div>
+  </div>
+  {% endfor %}
+</div>
+<div class="empty hidden" id="no-results">No diagrams match your filters.</div>
+
+<!-- Add diagram popup: you pick an image that already exists (no uploading random pictures) -->
+<div class="modal-overlay" id="modal-dia">
+  <div class="modal">
+    <h2>Add Diagram</h2>
+    <div class="form-errors" id="dia-errors"></div>
+    <div class="field"><label>Title *</label><input type="text" id="dia-title" placeholder="e.g. Minimum Price in the Wheat Market"></div>
+    <div class="field"><label>Diagram image * <small>(choose from the app's academic diagrams)</small></label>
+      {# all_images comes from app.py. the .replace bits just make the file name look nicer #}
+      <select id="dia-image">
+        {% for img in all_images %}<option value="{{ img }}">{{ img.replace('.svg','').replace('-', ' ')|title }}</option>{% endfor %}
+      </select></div>
+    <div class="field"><label>IB explanation *</label><textarea id="dia-explanation" placeholder="Explain what the diagram shows, IB style..."></textarea></div>
+    <div class="form-grid">
+      <div class="field"><label>Subtopic *</label>
+        <select id="dia-subtopic">
+          {% for st in SUBTOPICS[section] %}<option>{{ st }}</option>{% endfor %}
+        </select></div>
+      <div class="field"><label>Level *</label>
+        <select id="dia-level"><option>Both</option><option>SL</option><option>HL</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" data-close-modal>Cancel</button>
+      <button class="btn primary" id="dia-save">Save</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+setupDiagramForm("{{ section }}");
+</script>
+{% endblock %}

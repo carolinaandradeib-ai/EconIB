@@ -1,0 +1,38 @@
+{# calculator.html — the grade calculator page (SC-06). the actual input rows and the live
+   grade are built by setupCalculator() in app.js. this template is mostly just the empty
+   shells that the js fills in. #}
+{% extends "base.html" %}
+{% block title %}Grade Calculator{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>🧮 Grade Calculator</h1>
+  <p class="sub">Estimate your final IB Economics grade (2027 weightings)</p>
+</div>
+
+{# the SL/HL switch. app.js listens to these and rebuilds the rows for the chosen level. #}
+<div class="calc-toggle">
+  <button id="btn-sl" class="active">Standard Level</button>
+  <button id="btn-hl">Higher Level</button>
+</div>
+
+{# js drops the paper input rows in here #}
+<div id="calc-rows"></div>
+
+<div class="card grade-result">
+  {# these get filled in live as you type #}
+  <div class="grade-circle" id="grade-circle">–</div>
+  <h2 id="grade-title">Enter your marks above</h2>
+  <p class="detail" id="grade-detail">The estimate updates as you type.</p>
+</div>
+<p class="disclaimer">Estimates use approximate IB grade boundaries — official 2027 boundaries are published after each exam session.</p>
+
+{% endblock %}
+{% block scripts %}
+<script>
+{# pass the weightings (from grade_calculator.py, via app.py) into the js as a real js object.
+   |tojson turns the python data into json so javascript can read it. #}
+const COMPONENTS = {{ components|tojson }};
+setupCalculator();
+</script>
+{% endblock %}

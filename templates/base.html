@@ -1,0 +1,58 @@
+{# base.html
+   this is the "frame" that every page uses. it has the sidebar + the toast popup + the
+   scripts, and a hole in the middle ({% block content %}) where each page drops its own stuff.
+   every other template starts with {% extends "base.html" %} so i only write the sidebar ONCE
+   instead of copying it onto 12 pages. {# ... #} is a jinja comment, it doesn't show up. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {# each page fills in its own title through this block #}
+  <title>{% block title %}EconIB{% endblock %} · EconIB</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  {# the sidebar - same on every page (that's the whole point of putting it here) #}
+  <aside class="sidebar">
+    <a class="logo" href="/">
+      <div class="logo-mark">🎓</div>
+      <div>
+        <div class="logo-name">EconIB</div>
+        <div class="logo-sub">2027 curriculum</div>
+      </div>
+    </a>
+
+    {# the "active" bit highlights whichever page you're on. app.py passes in `active`
+       and if it matches, i add the active class so the link looks selected. #}
+    <a class="nav-item {{ 'active' if active == 'home' }}" href="/">🏠 Home</a>
+    <a class="nav-item {{ 'active' if active == 'library' }}" href="/library">📚 Library</a>
+    <a class="nav-item {{ 'active' if active == 'calculator' }}" href="/calculator">🧮 Grade Calculator</a>
+    <a class="nav-item {{ 'active' if active == 'notes' }}" href="/notes">📝 Notes</a>
+    <a class="nav-item {{ 'active' if active == 'kits' }}" href="/kits">📦 Study Kits</a>
+    <a class="nav-item {{ 'active' if active == 'flashcards' }}" href="/flashcards">
+      🗂️ Flashcards
+      {# little number badge showing how many flashcards are due (only if there are any) #}
+      {% if due_count %}<span class="due-pill">{{ due_count }}</span>{% endif %}
+    </a>
+
+    <div class="sidebar-footer">Made for IB Economics<br>SL &amp; HL · first exams 2027</div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      {# THIS is where each page's actual content goes #}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+{# the little popup message (handled by toast() in app.js) #}
+<div class="toast" id="toast"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{# some pages add their own script at the end through this block #}
+{% block scripts %}{% endblock %}
+</body>
+</html>
