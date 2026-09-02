@@ -78,4 +78,5 @@ There's no separate database program — the "database" is just the two JSON fil
 ## Note on AI use
 
 I built this myself while learning Python, and I used an AI assistant (Claude) to help with a few
-of the harder parts. Those spots are marked with `AI help` comments in the code.
+of the harder parts. Those spots are marked with `AI help` comments in the code. And this README was created using AI.
+
