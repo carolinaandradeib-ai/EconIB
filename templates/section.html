@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ SECTIONS[section].name }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumb"><a href="/">← Home</a></div>
+<div class="page-header">
+  <h1>{{ SECTIONS[section].icon }} {{ SECTIONS[section].name }}</h1>
+  <p class="sub">{{ SECTIONS[section].blurb }}</p>
+</div>
+
+<div class="grid cols-2">
+  <a class="card section-card" href="/section/{{ section }}/definitions">
+    <div class="icon blue">📖</div>
+    <h3>Definitions</h3>
+    <p>{{ counts.definitions }} IB definitions</p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/diagrams">
+    <div class="icon green">📈</div>
+    <h3>Diagrams</h3>
+    <p>{{ counts.diagrams }} IB diagrams </p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/examples">
+    <div class="icon orange">🌐</div>
+    <h3>Real World Examples</h3>
+    <p>{{ counts.examples }} IB RWEs</p>
+    <div class="go">Open →</div>
+  </a>
+  <a class="card section-card" href="/section/{{ section }}/structures">
+    <div class="icon purple">🧱</div>
+    <h3>Structures</h3>
+    <p>{{ counts.structures }} answer templates</p>
+    <div class="go">Open →</div>
+  </a>
+</div>
+
+{% endblock %}

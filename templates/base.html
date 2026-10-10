@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EconIB{% endblock %} · EconIB</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  {# the sidebar #}
+  <aside class="sidebar">
+    <a class="logo" href="/">
+      <div class="logo-mark">🎓</div>
+      <div>
+        <div class="logo-name">EconIB</div>
+        <div class="logo-sub">2027 curriculum</div>
+      </div>
+    </a>
+
+    <a class="nav-item {{ 'active' if active == 'home' }}" href="/">🏠 Home</a>
+    <a class="nav-item {{ 'active' if active == 'library' }}" href="/library">📚 Library</a>
+    <a class="nav-item {{ 'active' if active == 'calculator' }}" href="/calculator">🧮 Grade Calculator</a>
+    <a class="nav-item {{ 'active' if active == 'notes' }}" href="/notes">📝 Notes</a>
+    <a class="nav-item {{ 'active' if active == 'kits' }}" href="/kits">📦 Study Kits</a>
+    <a class="nav-item {{ 'active' if active == 'flashcards' }}" href="/flashcards">
+      🗂️ Flashcards
+      {% if due_count %}<span class="due-pill">{{ due_count }}</span>{% endif %}
+    </a>
+
+    <div class="sidebar-footer">Made for IB Economics<br>SL &amp; HL · first exams 2027</div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+<div class="noti" id="noti"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

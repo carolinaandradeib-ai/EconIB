@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Grade Calculator{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>🧮 Grade Calculator</h1>
+  <p class="sub">Estimate your final IB Economics grade (2027 weightings)</p>
+</div>
+
+<div class="calc-toggle">
+  <button id="btn-sl" class="active">Standard Level</button>
+  <button id="btn-hl">Higher Level</button>
+</div>
+
+<div id="calc-rows"></div>
+
+<div class="card grade-result">
+  <div class="grade-circle" id="grade-circle">–</div>
+  <h2 id="grade-title">Enter your marks above</h2>
+  <p class="detail" id="grade-detail">The estimate updates as you type.</p>
+</div>
+<p class="disclaimer">Estimates use approximate IB grade boundaries — official 2027 boundaries are published after each exam session.</p>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const COMPONENTS = {{ components|tojson }};
+setupCalculator();
+</script>
+{% endblock %}
